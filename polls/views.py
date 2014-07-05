@@ -1,9 +1,12 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from polls.models import Choice, Poll
 from django.views import generic
 from django.utils import timezone
+from django.contrib.auth.decorators import permission_required
+
 
 class IndexView(generic.ListView):
     template_name = 'polls/index.html'
@@ -25,11 +28,12 @@ class DetailView(generic.DetailView):
         Excludes any polls that aren't published yet.
         """
         return Poll.objects.filter(pub_date__lte=timezone.now())
-
 class ResultsView(generic.DetailView):
     model = Poll
     template_name = 'polls/results.html'
 
+@login_required
+#@permission_required('polls.can_vote')
 def vote(request, poll_id):
     p = get_object_or_404(Poll, pk=poll_id)
     try:
